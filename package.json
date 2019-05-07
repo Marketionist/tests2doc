@@ -1,0 +1,32 @@
+{
+  "name": "tests2doc",
+  "version": "0.0.1",
+  "description": "Export your test cases from .js files to Google Docs",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js",
+    "patch": "npm version patch -m \"Bumped up package version to %s\" && git push && git push origin --tags && npm publish",
+    "minor": "npm version minor -m \"Bumped up package version to %s\" && git push && git push origin --tags && npm publish",
+    "major": "npm version major -m \"Bumped up package version to %s\" && git push && git push origin --tags && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Marketionist/tests2doc.git"
+  },
+  "keywords": [
+    "tests2doc",
+    "tests to doc",
+    "test documentation",
+    "link tests to Google Docs",
+    "export test cases to Google Docs"
+  ],
+  "author": "Dmytro Shpakovskyi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Marketionist/tests2doc/issues"
+  },
+  "homepage": "https://github.com/Marketionist/tests2doc#readme",
+  "dependencies": {
+    "google-spreadsheet": "^2.0.7"
+  }
+}
