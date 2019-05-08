@@ -1,7 +1,7 @@
 {
   "name": "tests2doc",
   "version": "0.0.1",
-  "description": "Export your test cases from .js files to Google Docs",
+  "description": "Export your test cases from .js or .feature files to Google Docs",
   "main": "index.js",
   "engines": {
     "node": ">=8.x.x"
