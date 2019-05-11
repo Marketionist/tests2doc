@@ -5,35 +5,63 @@ const path = require('path');
 
 // const creds = require('./client_secret.json');
 
-async function readTestFiles () {
+async function readTestFile (directoryPath, file) {
     const readFile = promisify(fs.readFile);
-    let filePath = path.join(__dirname, 'tests', 'test1.feature');
+    const filePath = path.join(directoryPath, file);
 
     try {
-        const txt = await readFile(filePath, 'utf8');
-        return console.log(txt);
+        const text = await readFile(filePath, 'utf8');
+
+        console.log(text);
+        return 'done';
     } catch (err) {
-        return console.error(err);
+        return console.error('Unable to read file:', err);
     }
 
     // Callback style
-    // fs.readFile(filePath, 'utf8', (err, txt) => {
+    // fs.readFile(filePath, 'utf8', (err, text) => {
     //     if (err) {
     //         throw new Error(err.message);
     //     }
-    //     console.log(txt);
+    //     console.log(text);
     // });
 
     // Promise style
     // await new Promise((resolve, reject) => {
-    //     fs.readFile(filePath, 'utf8', (err, txt) => {
+    //     fs.readFile(filePath, 'utf8', (err, text) => {
     //         if (err) {
     //             return reject(err.message);
     //         }
-    //         resolve(txt);
+    //         resolve(text);
     //     });
     // });
+}
 
+async function readTestDirectory () {
+    const readDirectory = promisify(fs.readdir);
+    const directoryPath = path.join(__dirname, 'tests');
+
+    try {
+        const files = await readDirectory(directoryPath, 'utf8');
+
+        console.log('Files:', files);
+
+        const testFiles = files.filter((file) => {
+            // Filter out only test file with .js or .feature extensions
+            return /.*\.(js|feature)$/gi.test(file);
+        });
+
+        console.log('Test files:', testFiles);
+
+        for (const [index, file] of testFiles.entries()) {
+            console.log(`Received test file ${index+1}`);
+            const readingStatus = await readTestFile(directoryPath, file);
+            console.log('Reading:', readingStatus);
+        }
+        console.log('All reading finished!');
+    } catch (err) {
+        return console.error('Unable to read directory:', err);
+    }
 }
 
 async function accessSpreadsheet () {
@@ -49,6 +77,6 @@ async function accessSpreadsheet () {
     console.log(rowsSheetFirst);
 }
 
-readTestFiles();
+readTestDirectory();
 
 // accessSpreadsheet();
