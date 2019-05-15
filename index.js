@@ -8,14 +8,44 @@ const path = require('path');
 async function readTestFile (directoryPath, file) {
     const readFile = promisify(fs.readFile);
     const filePath = path.join(directoryPath, file);
+    const fileExtension = path.extname(file);
 
-    try {
-        const text = await readFile(filePath, 'utf8');
+    if (fileExtension === '.js') {
+        try {
+            const text = await readFile(filePath, 'utf8');
 
-        console.log(text);
-        return 'done';
-    } catch (err) {
-        return console.error('Unable to read file:', err);
+            const testCases = text.split('\n').filter((textLine, index) => {
+                // Filter out only test cases that start from "it("
+                return /it\((.*)/gi.test(textLine);
+            }).map((textLine, index) => {
+                return (textLine.trim()
+                    .replace(/it\(('|")/, '')
+                    .replace(/('|"),\s?(function(.*)|\((.*)\))(.*)/, ''));
+            });
+
+            console.log(testCases);
+            return 'done';
+        } catch (err) {
+            return console.error(`Unable to read ${filePath} file:`, err);
+        }
+    } else if (fileExtension === '.feature') {
+        try {
+            const text = await readFile(filePath, 'utf8');
+
+            const testCases = text.split('\n').filter((textLine, index) => {
+                // Filter out only test cases that start from "Scenario: "
+                return /Scenario: (.*)/gi.test(textLine);
+            }).map((textLine, index) => {
+                return textLine.trim().replace('Scenario: ', '');
+            });
+
+            console.log(testCases);
+            return 'done';
+        } catch (err) {
+            return console.error(`Unable to read ${filePath} file:`, err);
+        }
+    } else {
+        return console.error(`Unable to read ${filePath} file:`, err);
     }
 
     // Callback style
@@ -54,7 +84,7 @@ async function readTestDirectory () {
         console.log('Test files:', testFiles);
 
         for (const [index, file] of testFiles.entries()) {
-            console.log(`Received test file ${index+1}`);
+            console.log(`========\nReceived test file ${index+1}`);
             const readingStatus = await readTestFile(directoryPath, file);
             console.log('Reading:', readingStatus);
         }
