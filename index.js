@@ -5,6 +5,8 @@ const path = require('path');
 
 // const creds = require('./client_secret.json');
 
+const ERROR_READING_FILE = 'Unable to read %s file:';
+
 async function readTestFile (directoryPath, file) {
     const readFile = promisify(fs.readFile);
     const filePath = path.join(directoryPath, file);
@@ -18,15 +20,17 @@ async function readTestFile (directoryPath, file) {
                 // Filter out only test cases that start from "it("
                 return /it\((.*)/gi.test(textLine);
             }).map((textLine, index) => {
+                // Remove `it('`, `it("` from the line start
+                // and `', function`, `", function`, `', ()`, `", ()`, etc. from the line ending
                 return (textLine.trim()
                     .replace(/it\(('|")/, '')
-                    .replace(/('|"),\s?(function(.*)|\((.*)\))(.*)/, ''));
+                    .replace(/('|"),\s?(function\s?(.*)|\((.*)\))\s?(.*)/, ''));
             });
 
             console.log(testCases);
             return 'done';
         } catch (err) {
-            return console.error(`Unable to read ${filePath} file:`, err);
+            return console.error(ERROR_READING_FILE, filePath, err);
         }
     } else if (fileExtension === '.feature') {
         try {
@@ -42,10 +46,10 @@ async function readTestFile (directoryPath, file) {
             console.log(testCases);
             return 'done';
         } catch (err) {
-            return console.error(`Unable to read ${filePath} file:`, err);
+            return console.error(ERROR_READING_FILE, filePath, err);
         }
     } else {
-        return console.error(`Unable to read ${filePath} file:`, err);
+        return console.error(ERROR_READING_FILE, filePath, err);
     }
 
     // Callback style
