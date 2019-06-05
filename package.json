@@ -1,13 +1,13 @@
 {
   "name": "tests2doc",
-  "version": "0.0.1",
-  "description": "Export your test cases from .js or .feature files to Google Docs",
+  "version": "1.0.0",
+  "description": "Export your test cases from .js or .feature files to Google Docs Sheets",
   "main": "index.js",
   "engines": {
     "node": ">=8.x.x"
   },
   "scripts": {
-    "test": "node index.js",
+    "test": "node tests/test.reading.js",
     "patch": "npm version patch -m \"Bumped up package version to %s\" && git push && git push origin --tags && npm publish",
     "minor": "npm version minor -m \"Bumped up package version to %s\" && git push && git push origin --tags && npm publish",
     "major": "npm version major -m \"Bumped up package version to %s\" && git push && git push origin --tags && npm publish"
