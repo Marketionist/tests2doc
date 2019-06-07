@@ -24,6 +24,14 @@ if (!process.env.TESTS_FOLDER_PATH) {
 
 let internalFunctions = {
 
+    capitalizeFirstLetter: function (textLine) {
+        return textLine.charAt(0).toUpperCase() + textLine.slice(1);
+    }
+
+};
+
+let serviceFunctions = {
+
     readTestFile: async function (directoryPath, file) {
         const readFile = promisify(fs.readFile);
         const filePath = path.join(directoryPath, file);
@@ -35,13 +43,16 @@ let internalFunctions = {
 
                 let testCasesJS = text.split('\n').filter((textLine, index) => {
                     // Filter out only test cases that start from "it("
-                    return /it\((.*)/gi.test(textLine);
+                    return (/it\((.*)/gi).test(textLine);
                 }).map((textLine, index) => {
                     // Remove `it('`, `it("` from the line start
                     // and `', function`, `", function`, `', ()`, `", ()`, etc. from the line ending
-                    return (textLine.trim()
+                    let textLineProcessed = textLine.trim()
                         .replace(/it\(('|")/, '')
-                        .replace(/('|"),\s?(function\s?(.*)|\((.*)\))\s?(.*)/, ''));
+                        .replace(/('|"),\s?(function\s?(.*)|\((.*)\))\s?(.*)/, '');
+
+                    // Capitalize first letter
+                    return internalFunctions.capitalizeFirstLetter(textLineProcessed);
                 });
 
                 console.log(testCasesJS);
@@ -56,9 +67,12 @@ let internalFunctions = {
 
                 let testCasesFeature = text.split('\n').filter((textLine, index) => {
                     // Filter out only test cases that start from "Scenario: "
-                    return /Scenario: (.*)/gi.test(textLine);
+                    return (/Scenario: (.*)/gi).test(textLine);
                 }).map((textLine, index) => {
-                    return textLine.trim().replace('Scenario: ', '');
+                    let textLineProcessed = textLine.trim().replace('Scenario: ', '');
+
+                    // Capitalize first letter
+                    return internalFunctions.capitalizeFirstLetter(textLineProcessed);
                 });
 
                 console.log(testCasesFeature);
@@ -68,7 +82,7 @@ let internalFunctions = {
                 return console.error(ERROR_READING_FILE, filePath, err);
             }
         } else {
-            return console.error(ERROR_READING_FILE, filePath, err);
+            return console.error(ERROR_READING_FILE, filePath);
         }
 
         // Callback style
@@ -98,6 +112,7 @@ module.exports = {
         const creds = require(process.env.CLIENT_SECRET_PATH);
         // Create a document object using the ID of the spreadsheet - obtained from its URL
         const doc = new GoogleSpreadsheet('1PFFjtefXMDdNgBi44pVfciHy2DT5bF_fI1jj4ZqsRGA');
+
         await promisify(doc.useServiceAccountAuth)(creds);
         const docInfo = await promisify(doc.getInfo)();
         let sheetFirst = docInfo.worksheets[0];
@@ -117,24 +132,17 @@ module.exports = {
         await promisify(sheetFirst.resize)({ rowCount: numberOfTestCases, colCount: 10 }); // async
 
         let cellsHeader = await promisify(sheetFirst.getCells)({
-                'min-row': 1,
-                'max-row': 1,
-                'min-col': 1,
-                'max-col': 5,
-                'return-empty': true
+            'min-row': 1,
+            'max-row': 1,
+            'min-col': 1,
+            'max-col': 5,
+            'return-empty': true
         });
 
         if (cellsHeader[0].value !== txtHeaderNumber) {
             // Set texts for header row
             await promisify(sheetFirst.setHeaderRow)([txtHeaderNumber, 'Test case', 'Priority', 'Status']); // async
         }
-
-            // cellsHeader[0].value = '#';
-            // cellsHeader[1].value = 'Test case';
-            // cellsHeader[2].value = 'Priority';
-            // cellsHeader[3].value = 'Status';
-            // cellsHeader[4].formula = '=A1+B1';
-            // await sheetFirst.bulkUpdateCells(cellsHeader); //async
 
         // // Bulk updates make it easy to update many cells at once
         // let cellsHeader = await promisify(sheetFirst.getCells)({
@@ -189,14 +197,15 @@ module.exports = {
 
             const testFiles = files.filter((file) => {
                 // Filter out only test file with .js or .feature extensions
-                return /.*\.(js|feature)$/gi.test(file);
+                return (/.*\.(js|feature)$/gi).test(file);
             });
 
             console.log('Test files:', testFiles);
 
             for (const [index, file] of testFiles.entries()) {
-                console.log(`========\nReceived test file ${index+1}`);
-                let testCases = await internalFunctions.readTestFile(directoryPath, file);
+                console.log(`========\nReceived test file ${index + 1}`);
+                let testCases = await serviceFunctions.readTestFile(directoryPath, file);
+
                 testCasesAccumulator = testCasesAccumulator.concat(testCases);
                 console.log('Final number of test cases:', testCasesAccumulator.length);
             }
