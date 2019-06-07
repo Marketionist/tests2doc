@@ -16,6 +16,7 @@ install:
 
 before_script:
   - echo '{"type":"service_account"}' > client_secret.json
+  - npm run lint
 
 # http://docs.travis-ci.com/user/pull-requests/
 script:
