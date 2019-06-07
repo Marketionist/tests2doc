@@ -4,7 +4,7 @@
 [![npm version](https://img.shields.io/npm/v/tests2doc.svg)](https://www.npmjs.com/package/tests2doc)
 [![NPM License](https://img.shields.io/npm/l/tests2doc.svg)](https://github.com/Marketionist/tests2doc/blob/master/LICENSE)
 
-Export your test cases from `.js` or `.feature` files to Google Docs
+Export your test cases from `.js` or `.feature` files to Google Docs Sheets
 
 ## Supported versions
 [Node.js](http://nodejs.org/):
@@ -12,13 +12,26 @@ Export your test cases from `.js` or `.feature` files to Google Docs
 - 9.x
 - 10.x
 - 11.x
+- 12.x
 
 ## Installation
 `npm install tests2doc --save`
 
 ## Importing and configuring
-You can require tests2doc and configure it like this:
+> You will need to enable the Google Sheets API for the project in order to access
+> Spreadsheets - see [instructions and images](https://cmichel.io/how-to-access-google-spreadsheet-with-node/)
 
+You can require tests2doc in your `.js` file and configure it like this:
+
+```javascript
+const { exportTestCases } = require('tests2doc');
+
+exportTestCases();
 ```
-let tests2doc = require('tests2doc').tests2doc;
-```
+
+Function `exportTestCases` returns an array of test cases and exports them to Google Sheets
+
+
+## Thanks
+If this script was helpful for you, please give it a **★ Star**
+on [github](https://github.com/Marketionist/tests2doc)
