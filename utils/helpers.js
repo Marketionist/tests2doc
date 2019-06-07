@@ -4,9 +4,23 @@ const GoogleSpreadsheet = require('google-spreadsheet');
 const { promisify } = require('util');
 const fs = require('fs');
 const path = require('path');
-const creds = require('../client_secret.json');
 
 const ERROR_READING_FILE = 'Unable to read %s file:';
+const WRONG_CLIENT_SECRET_PATH = 'Please provide path to your client_secret.json file by setting CLIENT_SECRET_PATH ' +
+    'parameter';
+const WRONG_TESTS_FOLDER_PATH = 'Please provide path to your tests folder by setting TESTS_FOLDER_PATH parameter';
+
+// Check if CLIENT_SECRET_PATH parameter is set
+if (!process.env.CLIENT_SECRET_PATH) {
+    console.log(WRONG_CLIENT_SECRET_PATH);
+    process.exit(1);
+}
+
+// Check if TESTS_FOLDER_PATH parameter is set
+if (!process.env.TESTS_FOLDER_PATH) {
+    console.log(WRONG_TESTS_FOLDER_PATH);
+    process.exit(1);
+}
 
 let internalFunctions = {
 
@@ -81,12 +95,14 @@ let internalFunctions = {
 module.exports = {
 
     writeSpreadsheet: async function (arrayTestCases) {
+        const creds = require(process.env.CLIENT_SECRET_PATH);
         // Create a document object using the ID of the spreadsheet - obtained from its URL
         const doc = new GoogleSpreadsheet('1PFFjtefXMDdNgBi44pVfciHy2DT5bF_fI1jj4ZqsRGA');
         await promisify(doc.useServiceAccountAuth)(creds);
         const docInfo = await promisify(doc.getInfo)();
         let sheetFirst = docInfo.worksheets[0];
         let numberOfTestCases = arrayTestCases.length + 1;
+        let txtHeaderNumber = '#';
 
         console.log(`Loaded doc: "${docInfo.title}" by ${docInfo.author.email}`);
         console.log(`Loaded ${docInfo.worksheets.length} sheets:`);
@@ -100,11 +116,28 @@ module.exports = {
         // Resize a sheet
         await promisify(sheetFirst.resize)({ rowCount: numberOfTestCases, colCount: 10 }); // async
 
-        // Set texts for header row
-        await promisify(sheetFirst.setHeaderRow)(['#', 'Test case', 'Priority', 'Status']); // async
+        let cellsHeader = await promisify(sheetFirst.getCells)({
+                'min-row': 1,
+                'max-row': 1,
+                'min-col': 1,
+                'max-col': 5,
+                'return-empty': true
+        });
+
+        if (cellsHeader[0].value !== txtHeaderNumber) {
+            // Set texts for header row
+            await promisify(sheetFirst.setHeaderRow)([txtHeaderNumber, 'Test case', 'Priority', 'Status']); // async
+        }
+
+            // cellsHeader[0].value = '#';
+            // cellsHeader[1].value = 'Test case';
+            // cellsHeader[2].value = 'Priority';
+            // cellsHeader[3].value = 'Status';
+            // cellsHeader[4].formula = '=A1+B1';
+            // await sheetFirst.bulkUpdateCells(cellsHeader); //async
 
         // // Bulk updates make it easy to update many cells at once
-        // let cellsHeading = await promisify(sheetFirst.getCells)({
+        // let cellsHeader = await promisify(sheetFirst.getCells)({
         //     'min-row': 1,
         //     'max-row': 1,
         //     'min-col': 1,
@@ -112,12 +145,12 @@ module.exports = {
         //     'return-empty': true
         // });
 
-        // cellsHeading[0].value = '#';
-        // cellsHeading[1].value = 'Test case';
-        // cellsHeading[2].value = 'Priority';
-        // cellsHeading[3].value = 'Status';
-        // cellsHeading[4].formula = '=A1+B1';
-        // await sheetFirst.bulkUpdateCells(cellsHeading); //async
+        // cellsHeader[0].value = '#';
+        // cellsHeader[1].value = 'Test case';
+        // cellsHeader[2].value = 'Priority';
+        // cellsHeader[3].value = 'Status';
+        // cellsHeader[4].formula = '=A1+B1';
+        // await sheetFirst.bulkUpdateCells(cellsHeader); //async
 
         let cellsNumber = await promisify(sheetFirst.getCells)({
             'min-row': 1,
@@ -127,7 +160,7 @@ module.exports = {
             'return-empty': true
         });
 
-        cellsNumber.forEach((cell, index) => { cell.value = index; });
+        cellsNumber.forEach((cell, index) => { if (cell.value !== txtHeaderNumber) { cell.value = index; } });
         await sheetFirst.bulkUpdateCells(cellsNumber);
 
         let cellsTestCases = await promisify(sheetFirst.getCells)({
@@ -146,7 +179,7 @@ module.exports = {
 
     readTestDirectory: async function () {
         const readDirectory = promisify(fs.readdir);
-        const directoryPath = path.join(__dirname, '../tests');
+        const directoryPath = path.join(__dirname, process.env.TESTS_FOLDER_PATH);
         let testCasesAccumulator = [];
 
         try {
