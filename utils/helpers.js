@@ -4,9 +4,23 @@ const GoogleSpreadsheet = require('google-spreadsheet');
 const { promisify } = require('util');
 const fs = require('fs');
 const path = require('path');
-const creds = require('../client_secret.json');
 
 const ERROR_READING_FILE = 'Unable to read %s file:';
+const WRONG_CLIENT_SECRET_PATH = 'Please provide path to your client_secret.json file by setting CLIENT_SECRET_PATH ' +
+    'parameter';
+const WRONG_TESTS_FOLDER_PATH = 'Please provide path to your tests folder by setting TESTS_FOLDER_PATH parameter';
+
+// Check if CLIENT_SECRET_PATH parameter is set
+if (!process.env.CLIENT_SECRET_PATH) {
+    console.log(WRONG_CLIENT_SECRET_PATH);
+    process.exit(1);
+}
+
+// Check if TESTS_FOLDER_PATH parameter is set
+if (!process.env.TESTS_FOLDER_PATH) {
+    console.log(WRONG_TESTS_FOLDER_PATH);
+    process.exit(1);
+}
 
 let internalFunctions = {
 
@@ -81,6 +95,7 @@ let internalFunctions = {
 module.exports = {
 
     writeSpreadsheet: async function (arrayTestCases) {
+        const creds = require(process.env.CLIENT_SECRET_PATH);
         // Create a document object using the ID of the spreadsheet - obtained from its URL
         const doc = new GoogleSpreadsheet('1PFFjtefXMDdNgBi44pVfciHy2DT5bF_fI1jj4ZqsRGA');
         await promisify(doc.useServiceAccountAuth)(creds);
@@ -164,7 +179,7 @@ module.exports = {
 
     readTestDirectory: async function () {
         const readDirectory = promisify(fs.readdir);
-        const directoryPath = path.join(__dirname, '../tests');
+        const directoryPath = path.join(__dirname, process.env.TESTS_FOLDER_PATH);
         let testCasesAccumulator = [];
 
         try {
