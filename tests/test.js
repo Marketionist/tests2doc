@@ -12,6 +12,7 @@ describe('CRM integration tests: ', function () {
     it('create a new lead, validate its status', () => {
     });
 
+    // eslint-disable-next-line space-before-function-paren
     it('change the name of the "New" status to "Updated", validate it changed inside lead', function() {
     });
 
