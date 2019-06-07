@@ -87,6 +87,7 @@ module.exports = {
         const docInfo = await promisify(doc.getInfo)();
         let sheetFirst = docInfo.worksheets[0];
         let numberOfTestCases = arrayTestCases.length + 1;
+        let txtHeaderNumber = '#';
 
         console.log(`Loaded doc: "${docInfo.title}" by ${docInfo.author.email}`);
         console.log(`Loaded ${docInfo.worksheets.length} sheets:`);
@@ -100,11 +101,28 @@ module.exports = {
         // Resize a sheet
         await promisify(sheetFirst.resize)({ rowCount: numberOfTestCases, colCount: 10 }); // async
 
-        // Set texts for header row
-        await promisify(sheetFirst.setHeaderRow)(['#', 'Test case', 'Priority', 'Status']); // async
+        let cellsHeader = await promisify(sheetFirst.getCells)({
+                'min-row': 1,
+                'max-row': 1,
+                'min-col': 1,
+                'max-col': 5,
+                'return-empty': true
+        });
+
+        if (cellsHeader[0].value !== txtHeaderNumber) {
+            // Set texts for header row
+            await promisify(sheetFirst.setHeaderRow)([txtHeaderNumber, 'Test case', 'Priority', 'Status']); // async
+        }
+
+            // cellsHeader[0].value = '#';
+            // cellsHeader[1].value = 'Test case';
+            // cellsHeader[2].value = 'Priority';
+            // cellsHeader[3].value = 'Status';
+            // cellsHeader[4].formula = '=A1+B1';
+            // await sheetFirst.bulkUpdateCells(cellsHeader); //async
 
         // // Bulk updates make it easy to update many cells at once
-        // let cellsHeading = await promisify(sheetFirst.getCells)({
+        // let cellsHeader = await promisify(sheetFirst.getCells)({
         //     'min-row': 1,
         //     'max-row': 1,
         //     'min-col': 1,
@@ -112,12 +130,12 @@ module.exports = {
         //     'return-empty': true
         // });
 
-        // cellsHeading[0].value = '#';
-        // cellsHeading[1].value = 'Test case';
-        // cellsHeading[2].value = 'Priority';
-        // cellsHeading[3].value = 'Status';
-        // cellsHeading[4].formula = '=A1+B1';
-        // await sheetFirst.bulkUpdateCells(cellsHeading); //async
+        // cellsHeader[0].value = '#';
+        // cellsHeader[1].value = 'Test case';
+        // cellsHeader[2].value = 'Priority';
+        // cellsHeader[3].value = 'Status';
+        // cellsHeader[4].formula = '=A1+B1';
+        // await sheetFirst.bulkUpdateCells(cellsHeader); //async
 
         let cellsNumber = await promisify(sheetFirst.getCells)({
             'min-row': 1,
@@ -127,7 +145,7 @@ module.exports = {
             'return-empty': true
         });
 
-        cellsNumber.forEach((cell, index) => { cell.value = index; });
+        cellsNumber.forEach((cell, index) => { if (cell.value !== txtHeaderNumber) { cell.value = index; } });
         await sheetFirst.bulkUpdateCells(cellsNumber);
 
         let cellsTestCases = await promisify(sheetFirst.getCells)({
