@@ -10,6 +10,8 @@ const WRONG_CLIENT_SECRET_PATH = 'Please provide path to your client_secret.json
     'parameter';
 const WRONG_TESTS_FOLDER_PATH = 'Please provide path to your tests folder by setting TESTS_FOLDER_PATH parameter';
 
+let pathFromNodeModules = './../../../';
+
 // Check if CLIENT_SECRET_PATH parameter is set
 if (!process.env.CLIENT_SECRET_PATH) {
     console.log(WRONG_CLIENT_SECRET_PATH);
@@ -109,7 +111,7 @@ let serviceFunctions = {
 module.exports = {
 
     writeSpreadsheet: async function (arrayTestCases) {
-        const creds = require(process.env.CLIENT_SECRET_PATH);
+        const creds = require(path.join(__dirname, pathFromNodeModules, process.env.CLIENT_SECRET_PATH));
         // Create a document object using the ID of the spreadsheet - obtained from its URL
         const doc = new GoogleSpreadsheet('1PFFjtefXMDdNgBi44pVfciHy2DT5bF_fI1jj4ZqsRGA');
 
@@ -187,7 +189,7 @@ module.exports = {
 
     readTestDirectory: async function () {
         const readDirectory = promisify(fs.readdir);
-        const directoryPath = path.join(__dirname, process.env.TESTS_FOLDER_PATH);
+        const directoryPath = path.join(__dirname, pathFromNodeModules, process.env.TESTS_FOLDER_PATH);
         let testCasesAccumulator = [];
 
         try {
