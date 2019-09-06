@@ -10,7 +10,7 @@ const WRONG_CLIENT_SECRET_PATH = 'Please provide path to your client_secret.json
     'parameter';
 const WRONG_TESTS_FOLDER_PATH = 'Please provide path to your tests folder by setting TESTS_FOLDER_PATH parameter';
 
-let pathFromNodeModules = './../../../';
+let pathFromNodeModules = process.env.LOCAL_PACKAGE_PATH || './../../../';
 
 // Check if CLIENT_SECRET_PATH parameter is set
 if (!process.env.CLIENT_SECRET_PATH) {
