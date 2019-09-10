@@ -19,7 +19,7 @@ Export your test cases from `.js` or `.feature` files to Google Docs Sheets.
 
 ## Importing and configuring
 > You will need to enable the Google Sheets API for the project in order to access
-> Spreadsheets - see [instructions and images](https://cmichel.io/how-to-access-google-spreadsheet-with-node/).
+> Spreadsheets - see [instructions](https://cmichel.io/how-to-access-google-spreadsheet-with-node/).
 
 You can require tests2doc in your `.js` file and configure it like this:
 
@@ -32,14 +32,22 @@ exportTestCases();
 Function `exportTestCases` returns an array of test cases and exports them to Google Sheets.
 
 When launching the script (your `.js` file that contains `exportTestCases();`) 2 parametes should be provided:
-- `CLIENT_SECRET_PATH` - string with path to your `client_secret.json` file - for
-    example `CLIENT_SECRET_PATH='../secrets/client_secret.json'`;
-- `TESTS_FOLDER_PATH` - string with path to your `tests` folder - for example `TESTS_FOLDER_PATH='./src/tests'`;
+- `CLIENT_SECRET_PATH` - string with path to your `client_secret.json` file - for example:
+
+  ```bash
+  CLIENT_SECRET_PATH='./secrets/client_secret.json'
+  ```
+
+- `TESTS_FOLDER_PATH` - string with path to your `tests` folder - for example:
+
+  ```bash
+  TESTS_FOLDER_PATH='./src/tests'
+  ```
 
 So it will look like:
 
 ```bash
-CLIENT_SECRET_PATH='../secrets/client_secret.json' TESTS_FOLDER_PATH='./src/tests' node index.js
+CLIENT_SECRET_PATH='./secrets/client_secret.json' TESTS_FOLDER_PATH='./src/tests' node index.js
 ```
 
 
