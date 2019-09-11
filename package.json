@@ -32,9 +32,9 @@
   },
   "homepage": "https://github.com/Marketionist/tests2doc#readme",
   "dependencies": {
-    "google-spreadsheet": "^2.0.7"
+    "google-spreadsheet": "^2.0.8"
   },
   "devDependencies": {
-    "eslint": "^5.16.0"
+    "eslint": "^6.3.0"
   }
 }
